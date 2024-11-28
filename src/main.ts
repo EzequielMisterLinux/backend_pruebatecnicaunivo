@@ -7,15 +7,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Configurar CORS
+  // Configurar CORS con opciones más amplias
   app.enableCors({
-    origin: [
-      'http://localhost:8080',
-      'http://localhost:5173',
-      'http://localhost:3000/api-docs',
-    ],
+    origin: '*', // Ajusta esto según tus necesidades de seguridad
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders: 'Content-Type,Authorization',
   });
 
   // Configuración de Swagger
@@ -25,16 +21,16 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('tasks')
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  const port = configService.get<number>('PORT') || 3000;
-  const host = configService.get<string>('HOST') || 'localhost';
+  // Configuración directa de la URL de Railway
+  const port = process.env.PORT || 3000;
+  const host = '0.0.0.0'; // Escucha en todas las interfaces de red
 
   await app.listen(port, host, () => {
-    console.log(`Application is running on: http://${host}:${port}`);
-    console.log(`Swagger docs available at: http://${host}:${port}/api-docs`);
+    console.log(`Application is running on: http://0.0.0.0:${port}`);
+    console.log(`Swagger docs available at: http://0.0.0.0:${port}/api-docs`);
   });
 }
 
